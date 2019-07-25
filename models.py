@@ -47,6 +47,7 @@ class Team:
         self.killed_kings = 0
         self.record = {'WIN': 0, 'LOST': 0, 'TIE': 0}
         self.last_played_on = None
+        self.last_position_played = None
         self.lineup = {'Tip':'', 'Blade':'','Spine':'','Spinner':'','Nocker':'','Shooter':''}
         
         pos_key = ''
@@ -146,26 +147,36 @@ class Game:
         self.away_circled = False
         self.home_circled = False
         self.when = None
-        self.on_field = 'home'
+        self.on_field = '-'
         self.player_on = 0
+        self.next_team()
+        self.next_player()
 
     def next_player(self):
 
-        if self.player_on < 5:
+        if self.player_on < 6:
             self.player_on += 1
+            if Game.team_up.home:
+                self.home_team.last_position_played = Game.lineup.get(self.player_on,'-')
+            else:
+                self.away_team.last_position_played = Game.lineup.get(self.player_on,'-')
         else:
-            self.player_on = 1
+            if Game.team_up.home == False:
+                self.next_team()
 
     def next_team(self):
         if self.player_on == 0 and Game.team_up is None:
             Game.team_up = self.away_team
+            self.on_field = 'away'
         else:
-            if Board.team_up.home:
-                self.home_team.counts = Board.team_up.counts
+            if team_up.home:
+                self.home_team.counts = team_up.counts
                 Game.team_up = self.away_team
+                self.on_field = 'away'
             else:
-                self.away_team.counts = Board.team_up.counts
+                self.away_team.counts = team_up.counts
                 Game.team_up = self.home_team
+                self.on_field = 'home'
             
             '''self.round += 1     '''
 
