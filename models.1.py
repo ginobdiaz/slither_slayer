@@ -48,7 +48,7 @@ class Team:
         self.last_played_on = None
         self.record = {'WIN': 0, 'LOST': 0, 'TIE': 0}
         '''
-        Current player game stats
+        Current game stats
         '''
         self.curr_counts = 0
         self.curr_scores = 0
@@ -76,22 +76,6 @@ class Team:
             6: "Shooter"
         }
         return switcher.get(arg,"no-go")
-
-    def reset_counts(self):
-        self.scores += self.curr_scores
-        self.counts += self.curr_counts
-        self.caught += self.curr_caught
-        self.circles += self.curr_circled
-        self.traps += self.curr_trapped
-        self.curr_scores = 0
-        self.curr_counts = 0
-        self.curr_caught = 0
-        self.curr_circled = 0
-        self.curr_trapped = 0
-
-
-
-
 
     def show_lineup(self):
         line = 'Arrowhead\n'
@@ -177,89 +161,33 @@ class Game:
         self.on_field = '-'
         self.player_on = 0
         self.round_on = 0
-#        self.next_team()
+        self.next_team()
 #        self.next_player()
-
-    def player_killed(self):
-        #has game started?
-        if self.round_on == 0:
-            print('game not started')
-            return
-        #check rounds
-        if self.scoreboard.team_up.home:
-            round_positions = Game.rounds.get((self.round_on + 1),[0]) 
-            if len(round_positions) == 1 and self.player_on == 6:
-                print("Game over")
-                return
-
-            #elements 2 or 4 marks the end of a round
-            if self.player_on in [2,4]:
-                self.round_on += 1
-
-        #clean up the counts
-        self.scoreboard.team_up.reset_counts
-
-    def next_player(self):
-        #has game started?
-        if self.round_on == 0:
-            print('game not started')
-            return None
-        ply = self.scoreboard.player_up 
-#rounds = {1:[1,2],2:[3,4],3:[5,6]}
-        round_positions = Game.rounds.get(self.round_on,[0])
-        if len(round_positions) == 1:
-            print("Game over")
-            return None
-        #new round new player and team
-        if self.player_on not in round_positions:
-            self.scoreboard.team_up = self.away_team
-            if self.player_on < 6:
-                self.player_on += 1
-        elif self.scoreboard.team_up.home == False and self.player_on in [2,4,6]:
-            self.scoreboard.team_up = self.home_team
-        #elif self.scoreboard.team_up.home and self.player_on in [2,4,6]:
-
-        self.scoreboard.player_up = self.scoreboard.team_up.curr_lineup.get(self.lineup.get(player_on))
 
     def start_game(self):
         self.round_on = 1
-        self.player_on = 1
         self.scoreboard = Board()
         self.scoreboard.team_up = self.away_team
         self.scoreboard.player_up = self.scoreboard.team_up.curr_lineup.get(self.lineup.get(1))
         #gbd
-        print('self.Scoreboard.Team.Up:{a}'.format(a=self.scoreboard.team_up.name))
-        print('self.Scoreboard.player.name:{a}'.format(a=self.scoreboard.player_up.first_name))
-        print()
-        self.scoreboard.team_up.counts = 6
-        self.scoreboard.team_up = self.home_team
-        self.scoreboard.player_up = self.scoreboard.team_up.curr_lineup.get(self.lineup.get(1))
-        #gbd
-        print('self.Scoreboard.Team.Up:{a}'.format(a=self.scoreboard.team_up.name))
-        print('self.Scoreboard.player.name:{a}'.format(a=self.scoreboard.player_up.first_name))
-        self.scoreboard.team_up.counts += 1
-#        round_positions = Game.rounds.get((self.round_on + 10),[0])
-#        round_positions = Game.rounds.get(self.round_on,[0])
-        round_positions = Game.rounds.get(2,[0])
-        print(len(round_positions))
-        print(round_positions)
-        if self.player_on not in round_positions:
-            print(round_positions)
+        print('self.Scoreboard.player.name:')
+        print(self.scoreboard.player_up.first_name)
+
+    def next_player(self):
+        if self.round_on == 0:
+            print('game not started')
+            return
+
+        if self.player_on < 6:
+            self.player_on += 1
+
+            if Game.team_up.home:
+                self.home_team.last_position_played = Game.lineup.get(self.player_on,'-')
+            else:
+                self.away_team.last_position_played = Game.lineup.get(self.player_on,'-')
         else:
-            print(self.player_on)
-
-    def start_run(self):
-        #check rounds
-        if self.scoreboard.team_up.home:
-            round_positions = Game.rounds.get((self.round_on + 1),[0]) 
-            if len(round_positions) == 1:
-                print("Game over")
-                return
-
-        #start timer
-        #get player
-        self.next_player()
-
+            if Game.team_up.home == False:
+                self.next_team()
 
 
 class Board:
@@ -269,6 +197,7 @@ class Board:
 
     def __init__(self,contest='standard'):
         self.contest = contest
+        self.game = game
         self.team_up = None
         self.player_up = None
         self.slay_king = False
@@ -279,25 +208,28 @@ class Board:
         self.round = 0
         self.board_count = 0
         self.hero_run = Hero()
+        self.next_team()
 
+#start game
+#start round
     def count(self, cnt=1):
         if self.hero_run.active_run() and not self.hero_run.saw_wall:
             return
         
-        if isinstance(self.team_up, Team):
+        if isinstance(Board.team_up, Team):
             if self.has_scored():
                 # the 'not self.hero_run.active_run()' means it's an anti-hero run
                 # the 'self.hero_run.can_kill()' means it's a qual-hero run
                 if (not self.hero_run.active_run()) or (self.hero_run.can_kill()):
                     self.team_scored()
-            elif self.team_up.counts < 6 and (not self.hero_run.active_run() or self.hero_run.can_kill()):
-                self.team_up.counts += self.board_count
+            elif Board.team_up.counts < 6 and (not self.hero_run.active_run() or self.hero_run.can_kill()):
+                Board.team_up.counts += self.board_count
                 self.board_count = 0
-                if (self.team_up.counts + cnt) > 6:
-                    cnt = 6 - self.team_up.counts
-                self.team_up.counts += cnt
+                if (Board.team_up.counts + cnt) > 6:
+                    cnt = 6 - Board.team_up.counts
+                Board.team_up.counts += cnt
                 self.hero_run.accum_count(cnt)
-                if self.team_up.counts == 6:
+                if Board.team_up.counts == 6:
                     self.count()
 
     def catch(self,snakes=1):
@@ -305,43 +237,43 @@ class Board:
             self.count()
 
     def team_circled(self):
-        if isinstance(self.team_up, Team):
+        if isinstance(Board.team_up, Team):
             if ((not self.hero_run.active_run() or self.hero_run.can_circle()) and not self.circled):
                 self.circled = True
-                self.team_up.circles += 1
+                Board.team_up.circles += 1
 
             if (self.has_scored()):
                 self.team_scored()
 
     def has_scored(self):
-        return self.team_up.counts >= 6 and self.circled
+        return Board.team_up.counts >= 6 and self.circled
 
     def special_count(self):
         self.board_count += 1
-        if  self.team_up.counts < 6 and (not self.hero_run.active_run() or self.hero_run.can_kill()):
+        if  Board.team_up.counts < 6 and (not self.hero_run.active_run() or self.hero_run.can_kill()):
             cnt = self.board_count
             self.board_count = 0
             for i in range(cnt):
                 self.count()
         
     def team_scored(self):
-#        if self.team_up.home:
-#            self.game.home_team.scores += 1
+        if Board.team_up.home:
+            self.game.home_team.scores += 1
 #            print(self.game.home_team.scores)
-#        else:
-#            self.game.away_team.scores += 1
+        else:
+            self.game.away_team.scores += 1
 #            print(self.game.away_team.scores)
 
         self.hero_run.activate(self.has_scored())
         if self.hero_run.active_run():
             self.circled = False
-            self.team_up.counts = 0
+            Board.team_up.counts = 0
 
     def get_hero_status(self):
         print(self.hero_run)
 
-#    def __str__(self):
-#        return "current count: {}\tcircled? {}\nAway: {} - Home: {}".format(self.team_up.counts,self.circled,self.game.away_team.scores,self.game.home_team.scores)
+    def __str__(self):
+        return "current count: {}\tcircled? {}\nAway: {} - Home: {}".format(Board.team_up.counts,self.circled,self.game.away_team.scores,self.game.home_team.scores)
     
 class Hero:
     def __init__(self):

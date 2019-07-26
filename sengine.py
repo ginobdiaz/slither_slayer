@@ -1,17 +1,17 @@
-from models import (Board, Team, Game, Player)
+from models import (Team, Game, Player)
 
 #gender,experience,position,name=[],nick='',starter=0
-players1 = []
+players1 = [] 
 players1.append(Player('M',2,1,['Thun','Jon'],'',1))
 players1.append(Player('M',2,2,['Jami','Nick'],'',1))
 players1.append(Player('M',3,3,['Jones','Relando'],'',1))
 players1.append(Player('F',0,4,['Greigo','Dee'],'',1))
 players1.append(Player('M',4,5,['Ellis','Elister'],'',1))
 players1.append(Player('M',3,6,['Greigo','Dan'],'',1))
-t1 = Team('Test1',players1,1)
-print('AWAY TEAM')
-print(t1)
-print(t1.show_lineup())
+t1 = Team('aTeam',players1,1)
+#print('AWAY TEAM')
+#print(t1)
+#print(t1.show_lineup())
 players2 = []
 players2.append(Player('F',0,1,['Greemzehese','Tonka'],'',1))
 players2.append(Player('F',1,2,['Sou','Natisha'],'',1))
@@ -19,11 +19,12 @@ players2.append(Player('F',2,3,['Smith','Sue'],'',1))
 players2.append(Player('F',2,4,['Grey','Shea'],'',1))
 players2.append(Player('F',3,5,['Martiz','Amber'],'',1))
 players2.append(Player('F',3,6,['Jackson','Toyia'],'',1))
-t2 = Team('Test2',players2,2)
-print('HOME TEAM')
-print(t2)
-print(t2.show_lineup())
-
+t2 = Team('hTeam',players2,2)
+#print('HOME TEAM')
+#print(t2)
+#print(t2.show_lineup())
+game1 = Game(t1,t2)
+game1.start_game()
 
 #START HERE
 def count_all():
