@@ -25,10 +25,13 @@ t2 = Team('hTeam',players2,2)
 #print(t2.show_lineup())
 game1 = Game(t1,t2)
 game1.start_game()
+for s in range(12):
+    print(game1.current_player())
+    game1.player_killed()
 
 #START HERE
 def count_all():
-    print("TEAM01: {a} |Counts: {b}".format(a=t1.name,b=t1.counts))
+    print("\nTEAM01: {a} |Counts: {b}".format(a=t1.name,b=t1.counts))
     print("TEAM02: {a} |Counts: {b}\n".format(a=t2.name,b=t2.counts))
 
 count_all()
