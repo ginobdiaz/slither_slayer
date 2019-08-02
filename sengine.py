@@ -25,9 +25,40 @@ t2 = Team('hTeam',players2,2)
 #print(t2.show_lineup())
 game1 = Game(t1,t2)
 game1.start_game()
-for s in range(12):
-    print(game1.current_player())
-    game1.player_killed()
+print('Begin player:\n{a}'.format(a=game1.current_player()))
+for s in range(2):
+    print(game1.player_slayed_slither())
+print(game1.current_player_run())
+game1.player_killed()
+
+print('Next player:\n{a}'.format(a=game1.current_player()))
+for s in range(3):
+    print("KILL")
+    game1.player_slayed_slither()
+print(game1.current_player_run())
+game1.player_killed()
+
+print('Next player:\n{a}'.format(a=game1.current_player()))
+for s in range(6):
+    print("KILL")
+    game1.player_slayed_slither()
+game1.player_circled()
+print(game1.current_player_run())
+game1.scoreboard.get_hero_status()
+game1.player_saw_wall()
+for s in range(6):
+    print("KILL")
+    game1.player_slayed_slither()
+game1.player_circled()
+print(game1.current_player_run())
+game1.scoreboard.get_hero_status()
+game1.player_saw_wall()
+for s in range(3):
+    print("KILL")
+    game1.player_slayed_slither()
+print(game1.current_player_run())
+game1.scoreboard.get_hero_status()
+game1.player_killed()
 
 #START HERE
 def count_all():
